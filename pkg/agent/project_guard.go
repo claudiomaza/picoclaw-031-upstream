@@ -40,7 +40,7 @@ func beginProjectGuard(workspace string) (*projectGuard, error) {
 		if err := os.WriteFile(filepath.Join(abs, ".gitignore"), []byte(ignore), 0o600); err != nil {
 			return nil, fmt.Errorf("project guard: write .gitignore: %w", err)
 		}
-		if err := runGit(abs, "add", ".gitignore"); err != nil {
+		if err := runGit(abs, "add", "-A"); err != nil {
 			return nil, fmt.Errorf("project guard: stage baseline: %w", err)
 		}
 		if err := runGit(abs, "-c", "user.name=PicoClaw", "-c", "user.email=picoclaw@localhost", "commit", "-m", "chore: initialize project guard"); err != nil {
