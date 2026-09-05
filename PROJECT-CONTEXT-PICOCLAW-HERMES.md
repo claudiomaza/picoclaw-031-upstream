@@ -92,7 +92,7 @@ Servicios:
 
 ```text
 picoclaw.service
-picoclaw-a2a.service
+proxy-a2a.service
 proxy-a2a.service
 ```
 
