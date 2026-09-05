@@ -15,6 +15,11 @@ import (
 )
 
 func (al *AgentLoop) runTurn(ctx context.Context, ts *turnState, pipeline *Pipeline) (turnResult, error) {
+	guard, guardErr := beginProjectGuard(ts.workspace)
+	if guardErr != nil {
+		return turnResult{}, guardErr
+	}
+	defer guard.Finish()
 	if ts != nil && ts.agent != nil {
 		modelMu := ts.agent.modelStateMutex()
 		modelMu.RLock()

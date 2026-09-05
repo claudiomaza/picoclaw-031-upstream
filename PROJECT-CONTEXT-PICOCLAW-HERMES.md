@@ -146,7 +146,7 @@ Hermes dispone de:
 - detección de project root Git.
 - verificación de mutaciones de archivos al finalizar turnos.
 
-Punto pendiente: hacer obligatorio el preflight proyecto + Git antes de cada tarea también en PicoClaw y endurecerlo en Hermes para que no se pueda trabajar sin carpeta fijada y estado inicial.
+Implementado en esta línea: PicoClaw ejecuta un preflight Git por turno y Hermes ejecuta un preflight para workspaces de código. Ambos inicializan Git de forma controlada cuando falta, excluyen secretos/estado runtime del baseline y registran el estado inicial/final. La verificación debe mantenerse cubierta por tests.
 
 ## 3. Monitoreo y backups
 
