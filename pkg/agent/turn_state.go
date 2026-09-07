@@ -253,6 +253,7 @@ type turnState struct {
 	tokenBudget      *atomic.Int64        // Shared token budget counter
 	lastFinishReason string               // Last LLM finish_reason
 	lastUsage        *providers.UsageInfo // Last LLM usage info
+	providerMetadata map[string]string
 
 	// Back-reference to the owning AgentLoop (set for SubTurns only, used for hard abort cascade)
 	al *AgentLoop
@@ -914,3 +915,6 @@ func turnStateFromContext(ctx context.Context) *turnState {
 func TurnStateFromContext(ctx context.Context) *turnState {
 	return turnStateFromContext(ctx)
 }
+
+func (ts *turnState) SetProviderMetadata(m map[string]string) { ts.providerMetadata = m }
+func (ts *turnState) GetProviderMetadata() map[string]string  { return ts.providerMetadata }

@@ -540,6 +540,9 @@ func (p *Pipeline) CallLLM(
 	// what the streaming publisher reads via GetLastUsage at finalize.
 	if ts != nil {
 		ts.SetLastFinishReason(exec.response.FinishReason)
+		if exec.response.ProviderMetadata != nil {
+			ts.SetProviderMetadata(exec.response.ProviderMetadata)
+		}
 		if exec.response.Usage != nil {
 			ts.SetLastUsage(exec.response.Usage)
 		}
