@@ -1,6 +1,9 @@
 package protocoltypes
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type ToolCall struct {
 	ID               string         `json:"id"`
@@ -27,6 +30,14 @@ type FunctionCall struct {
 	ThoughtSignature string `json:"thought_signature,omitempty"`
 }
 
+type requestIDKey struct{}
+
+// WithRequestID is a cm2labs-local transport seam; A2A aggregation remains in a2a-go.
+func WithRequestID(ctx context.Context, id string) context.Context {
+	return context.WithValue(ctx, requestIDKey{}, id)
+}
+func RequestID(ctx context.Context) string { v, _ := ctx.Value(requestIDKey{}).(string); return v }
+
 type LLMResponse struct {
 	Content          string            `json:"content"`
 	ReasoningContent string            `json:"reasoning_content,omitempty"`
@@ -35,6 +46,7 @@ type LLMResponse struct {
 	Usage            *UsageInfo        `json:"usage,omitempty"`
 	Reasoning        string            `json:"reasoning"`
 	ReasoningDetails []ReasoningDetail `json:"reasoning_details"`
+	ProviderMetadata map[string]string `json:"provider_metadata,omitempty"`
 }
 
 type StreamChunk struct {
