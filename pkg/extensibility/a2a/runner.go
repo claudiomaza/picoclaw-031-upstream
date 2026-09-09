@@ -11,7 +11,10 @@ import (
 )
 
 type TurnRequest struct{ RunID, TraceID, SessionID, Agent, Message string }
-type TurnResult struct{ RunID, TraceID, SessionID, Text string }
+type TurnResult struct {
+	Status, RunID, TraceID, SessionID, Text string
+	Error                                   string
+}
 type Runner struct{ loop *agent.AgentLoop }
 
 func NewRunner(configPath string) (*Runner, error) {
@@ -38,5 +41,10 @@ func (r *Runner) Execute(ctx context.Context, q TurnRequest) (TurnResult, error)
 		session = "a2a-" + q.RunID
 	}
 	text, err := r.loop.ProcessA2AMessage(ctx, bus.InboundMessage{Content: q.Message, Channel: "a2a", ChatID: session, SenderID: q.Agent, MessageID: q.TraceID, SessionKey: session})
-	return TurnResult{RunID: q.RunID, TraceID: q.TraceID, SessionID: session, Text: text}, err
+	result := TurnResult{Status: "COMPLETED", RunID: q.RunID, TraceID: q.TraceID, SessionID: session, Text: text}
+	if err != nil {
+		result.Status = "FAILED"
+		result.Error = err.Error()
+	}
+	return result, err
 }
