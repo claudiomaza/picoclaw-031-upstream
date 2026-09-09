@@ -2,6 +2,7 @@ package openai_compat
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -2194,5 +2195,27 @@ func TestSerializeMessages_StripsSystemParts(t *testing.T) {
 	raw := string(data)
 	if strings.Contains(raw, "system_parts") {
 		t.Fatal("system_parts should not appear in serialized output")
+	}
+}
+
+func TestProviderChat_PropagatesRequestIDAndProviderMetadata(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if got := r.Header.Get("X-Request-ID"); got != "run-123" {
+			t.Fatalf("request id = %q", got)
+		}
+		w.Header().Set("X-RoundRobin-Provider", "groq")
+		w.Header().Set("X-RoundRobin-Model", "model-a")
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = io.WriteString(w, `{"choices":[{"message":{"content":"ok"},"finish_reason":"stop"}]}`)
+	}))
+	defer server.Close()
+	p := NewProvider("key", server.URL, "")
+	ctx := protocoltypes.WithRequestID(context.Background(), "run-123")
+	out, err := p.Chat(ctx, []Message{{Role: "user", Content: "hi"}}, nil, "model-a", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out.ProviderMetadata["X-RoundRobin-Provider"] != "groq" || out.ProviderMetadata["X-RoundRobin-Model"] != "model-a" {
+		t.Fatalf("metadata = %#v", out.ProviderMetadata)
 	}
 }
