@@ -3,17 +3,18 @@ package a2a
 import (
 	"context"
 	"fmt"
-
 	"github.com/sipeed/picoclaw/pkg/agent"
 	"github.com/sipeed/picoclaw/pkg/bus"
 	"github.com/sipeed/picoclaw/pkg/config"
+	"github.com/sipeed/picoclaw/pkg/extensibility/profile"
 	"github.com/sipeed/picoclaw/pkg/providers"
+	"net/http"
 )
 
-type TurnRequest struct{ RunID, TraceID, SessionID, Agent, Message string }
+type TurnRequest struct{ Operation, RunID, TraceID, SessionID, Agent, AgentID, Message string }
 type TurnResult struct {
-	Status, RunID, TraceID, SessionID, Text string
-	Error                                   string
+	Status, RunID, TraceID, SessionID, AgentID, Text string
+	Error                                            string
 }
 type Runner struct{ loop *agent.AgentLoop }
 
@@ -28,23 +29,24 @@ func NewRunner(configPath string) (*Runner, error) {
 	}
 	return &Runner{loop: agent.NewAgentLoop(cfg, bus.NewMessageBus(), provider)}, nil
 }
-
 func (r *Runner) Execute(ctx context.Context, q TurnRequest) (TurnResult, error) {
 	if r == nil || r.loop == nil {
 		return TurnResult{}, fmt.Errorf("a2a runner is not initialized")
 	}
-	if q.Message == "" {
-		return TurnResult{}, fmt.Errorf("message is required")
+	out, err := (&profile.Service{Loop: r.loop}).Execute(ctx, profile.Request{RunID: q.RunID, TraceID: q.TraceID, SessionID: q.SessionID, AgentID: q.AgentID, Message: q.Message})
+	return TurnResult{Status: out.Status, RunID: out.RunID, TraceID: out.TraceID, SessionID: out.SessionID, AgentID: out.AgentID, Text: out.Text, Error: out.Error}, err
+}
+
+func (r *Runner) ListAgents() []profile.Descriptor {
+	if r == nil || r.loop == nil {
+		return nil
 	}
-	session := q.SessionID
-	if session == "" {
-		session = "a2a-" + q.RunID
+	return (&profile.Service{Loop: r.loop}).ListAgents()
+}
+
+func (r *Runner) ProfileHandler() http.Handler {
+	if r == nil || r.loop == nil {
+		return profile.Handler{}
 	}
-	text, err := r.loop.ProcessA2AMessage(ctx, bus.InboundMessage{Content: q.Message, Channel: "a2a", ChatID: session, SenderID: q.Agent, MessageID: q.TraceID, SessionKey: session})
-	result := TurnResult{Status: "COMPLETED", RunID: q.RunID, TraceID: q.TraceID, SessionID: session, Text: text}
-	if err != nil {
-		result.Status = "FAILED"
-		result.Error = err.Error()
-	}
-	return result, err
+	return profile.Handler{Service: &profile.Service{Loop: r.loop}}
 }

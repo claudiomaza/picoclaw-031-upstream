@@ -38,6 +38,11 @@ func NewRouteResolver(cfg *config.Config) *RouteResolver {
 // allocate session state.
 func (r *RouteResolver) ResolveRoute(inbound bus.InboundContext) ResolvedRoute {
 	channel := strings.ToLower(strings.TrimSpace(inbound.Channel))
+	if inbound.Raw != nil {
+		if requested := strings.TrimSpace(inbound.Raw["agent_id"]); requested != "" {
+			return ResolvedRoute{AgentID: r.pickAgentID(requested), Channel: channel, AccountID: NormalizeAccountID(inbound.Account), SessionPolicy: r.sessionPolicy(nil), MatchedBy: "explicit-agent-id"}
+		}
+	}
 	accountID := NormalizeAccountID(inbound.Account)
 	identityLinks := cloneIdentityLinks(r.cfg.Session.IdentityLinks)
 	view := buildDispatchView(inbound, identityLinks)
