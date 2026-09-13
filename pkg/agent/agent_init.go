@@ -368,7 +368,6 @@ func registerSharedTools(
 			subagentManager.SetTools(agent.Tools.Clone())
 			if spawnEnabled {
 				spawnTool := tools.NewSpawnTool(subagentManager)
-				spawnTool.SetSpawner(NewSubTurnSpawner(al))
 				currentAgentID := agentID
 				spawnTool.SetAllowlistChecker(func(targetAgentID string) bool {
 					return registry.CanSpawnSubagent(currentAgentID, targetAgentID)

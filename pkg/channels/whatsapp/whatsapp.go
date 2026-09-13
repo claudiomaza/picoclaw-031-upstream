@@ -12,6 +12,7 @@ import (
 	"github.com/sipeed/picoclaw/pkg/bus"
 	"github.com/sipeed/picoclaw/pkg/channels"
 	"github.com/sipeed/picoclaw/pkg/config"
+	"github.com/sipeed/picoclaw/pkg/extensions/formatting"
 	"github.com/sipeed/picoclaw/pkg/identity"
 	"github.com/sipeed/picoclaw/pkg/logger"
 	"github.com/sipeed/picoclaw/pkg/utils"
@@ -130,7 +131,7 @@ func (c *WhatsAppChannel) Send(ctx context.Context, msg bus.OutboundMessage) ([]
 	payload := map[string]any{
 		"type":    "message",
 		"to":      msg.ChatID,
-		"content": msg.Content,
+		"content": formatting.Render(msg.Content, formatting.ProfileWhatsApp),
 	}
 
 	data, err := json.Marshal(payload)

@@ -481,6 +481,9 @@ func (p *Provider) Chat(
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	if id := protocoltypes.RequestID(ctx); id != "" {
+		req.Header.Set("X-Request-ID", id)
+	}
 	if p.userAgent != "" {
 		req.Header.Set("User-Agent", p.userAgent)
 	}
@@ -499,7 +502,17 @@ func (p *Provider) Chat(
 		return nil, common.HandleErrorResponse(resp, p.apiBase)
 	}
 
-	return common.ReadAndParseResponse(resp, p.apiBase)
+	out, err := common.ReadAndParseResponse(resp, p.apiBase)
+	if err != nil {
+		return nil, err
+	}
+	out.ProviderMetadata = map[string]string{}
+	for _, k := range []string{"X-RoundRobin-Provider", "X-RoundRobin-Model", "X-RoundRobin-Node", "X-RoundRobin-Attempts", "X-RoundRobin-Failovers", "X-RoundRobin-Latency-Ms", "X-Request-ID"} {
+		if v := resp.Header.Get(k); v != "" {
+			out.ProviderMetadata[k] = v
+		}
+	}
+	return out, nil
 }
 
 // ChatStream implements streaming via OpenAI-compatible SSE (stream: true).

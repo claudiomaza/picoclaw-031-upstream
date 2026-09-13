@@ -81,6 +81,8 @@ type AgentLoop struct {
 	reloadFunc func() error
 
 	providerFactory func(*config.ModelConfig) (providers.LLMProvider, string, error)
+	a2aMetricsMu    sync.RWMutex
+	lastA2AMetrics  A2AMetrics
 }
 
 // processOptions configures how a message is processed
@@ -566,6 +568,44 @@ func (al *AgentLoop) runAgentLoop(
 	ts := newTurnState(agent, opts, turnScope)
 	pipeline := NewPipeline(al)
 	result, err := al.runTurn(ctx, ts, pipeline)
+	usage := ts.GetLastUsage()
+	metrics := A2AMetrics{Profile: "default", Model: result.modelName, Attempts: ts.currentIteration(), Failovers: ts.currentIteration() - 1, Tools: ts.toolKindsSnapshot()}
+	if metrics.Attempts < 1 {
+		metrics.Attempts = 1
+	}
+	if metrics.Failovers < 0 {
+		metrics.Failovers = 0
+	}
+	if usage != nil {
+		metrics.InputTokens = usage.PromptTokens
+		metrics.OutputTokens = usage.CompletionTokens
+		metrics.TotalTokens = usage.TotalTokens
+	}
+	meta := ts.GetProviderMetadata()
+	if metrics.Model == "" && meta["X-RoundRobin-Model"] != "" {
+		metrics.Model = meta["X-RoundRobin-Model"]
+	}
+	if meta["X-RoundRobin-Provider"] != "" {
+		metrics.Provider = meta["X-RoundRobin-Provider"]
+	}
+	if meta["X-RoundRobin-Node"] != "" {
+		metrics.Node = meta["X-RoundRobin-Node"]
+	}
+	if metrics.Provider == "" {
+		metrics.Provider = al.cfg.Agents.Defaults.Provider
+	}
+	if metrics.Provider == "" && len(ts.agent.Candidates) > 0 {
+		metrics.Provider = ts.agent.Candidates[0].Provider
+	}
+	if metrics.Provider == "" && len(metrics.Model) > 0 {
+		for i, c := range metrics.Model {
+			if c == '/' {
+				metrics.Provider = metrics.Model[:i]
+				break
+			}
+		}
+	}
+	al.setLastA2AMetrics(metrics)
 	if err != nil {
 		return "", err
 	}

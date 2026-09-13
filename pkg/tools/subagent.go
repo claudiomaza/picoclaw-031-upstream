@@ -160,9 +160,9 @@ func (sm *SubagentManager) Spawn(
 	go sm.runTask(ctx, subagentTask, callback)
 
 	if label != "" {
-		return fmt.Sprintf("Spawned subagent '%s' for task: %s", label, task), nil
+		return fmt.Sprintf("Spawned subagent '%s' (task_id=%s) for task: %s", label, taskID, task), nil
 	}
-	return fmt.Sprintf("Spawned subagent for task: %s", task), nil
+	return fmt.Sprintf("Spawned subagent (task_id=%s) for task: %s", taskID, task), nil
 }
 
 func (sm *SubagentManager) runTask(

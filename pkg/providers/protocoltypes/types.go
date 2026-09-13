@@ -1,6 +1,16 @@
 package protocoltypes
 
-import "time"
+import (
+	"context"
+	"time"
+)
+
+type requestIDKey struct{}
+
+func WithRequestID(ctx context.Context, id string) context.Context {
+	return context.WithValue(ctx, requestIDKey{}, id)
+}
+func RequestID(ctx context.Context) string { v, _ := ctx.Value(requestIDKey{}).(string); return v }
 
 type ToolCall struct {
 	ID               string         `json:"id"`
@@ -33,6 +43,7 @@ type LLMResponse struct {
 	ToolCalls        []ToolCall        `json:"tool_calls,omitempty"`
 	FinishReason     string            `json:"finish_reason"`
 	Usage            *UsageInfo        `json:"usage,omitempty"`
+	ProviderMetadata map[string]string `json:"provider_metadata,omitempty"`
 	Reasoning        string            `json:"reasoning"`
 	ReasoningDetails []ReasoningDetail `json:"reasoning_details"`
 }
