@@ -18,6 +18,7 @@ import (
 	"github.com/sipeed/picoclaw/pkg/routing"
 	"github.com/sipeed/picoclaw/pkg/session"
 	"github.com/sipeed/picoclaw/pkg/tools"
+	inspectortool "github.com/sipeed/picoclaw/pkg/tools/inspector"
 )
 
 // AgentInstance represents a fully configured agent with its own workspace,
@@ -119,6 +120,7 @@ func NewAgentInstance(
 
 	toolsRegistry := tools.NewToolRegistry()
 	toolsRegistry.SetAllowlist(agentToolAllowlist)
+	toolsRegistry.Register(inspectortool.New(""))
 
 	if cfg.Tools.IsToolEnabled("read_file") {
 		maxReadFileSize := cfg.Tools.ReadFile.MaxReadFileSize
