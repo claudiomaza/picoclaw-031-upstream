@@ -671,3 +671,14 @@ Discord: <https://discord.gg/V4sAZ9XWpN>
 
 WeChat:
 <img src="assets/wechat.png" alt="WeChat group QR code" width="512">
+
+## cm2labs runtime integration
+
+PicoClaw remains an independent runtime behind adapters:
+
+```text
+Telegram → session-gateway → agent-harness → PicoClaw
+Zapia → agent-harness → a2a-go → PicoClaw
+```
+
+The deployment uses `/v1/profile/agents/{agent_id}/turn`, preserves correlation when available, and receives provider/model/node/attempts/failovers/token telemetry from `agent-roundrobin`. The infrastructure inspector is read-only and allowlisted; secrets never belong in the repository.
