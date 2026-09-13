@@ -671,3 +671,26 @@ Discord: <https://discord.gg/V4sAZ9XWpN>
 
 WeChat:
 <img src="assets/wechat.png" alt="WeChat group QR code" width="512">
+
+## VM1 build: WhatsApp Native (Linux amd64)
+
+For the cm2labs VM1 deployment (`linux/amd64`, approximately 1 GB RAM and 4 GB swap), build the Native WhatsApp variant with reduced parallelism to avoid linker pressure:
+
+```bash
+GOMAXPROCS=1 GOGC=50 go build -p=1 \
+  -tags whatsapp_native \
+  -trimpath \
+  -ldflags="-s -w" \
+  -o /home/ubuntu/picoclaw-whatsapp-native-amd64 \
+  ./cmd/picoclaw
+```
+
+The resulting binary includes `whatsmeow` and is intended for Linux amd64. The tested build took approximately 5–6 minutes and produced an approximately 81 MB binary on VM1. Validate before installation:
+
+```bash
+go version -m /home/ubuntu/picoclaw-whatsapp-native-amd64
+strings /home/ubuntu/picoclaw-whatsapp-native-amd64 | grep -m1 -i whatsmeow
+sha256sum /home/ubuntu/picoclaw-whatsapp-native-amd64
+```
+
+Before replacing the production binary, preserve a rollback copy of `/home/ubuntu/picoclaw/bin/picoclaw`, install with mode `0700`, and restart `picoclaw.service` only after the checksum and architecture have been verified. This build does not enable WhatsApp by itself; the channel still requires `whatsapp.enabled` and the Native session configuration.
