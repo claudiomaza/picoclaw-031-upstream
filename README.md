@@ -682,3 +682,18 @@ Zapia → agent-harness → a2a-go → PicoClaw
 ```
 
 The deployment uses `/v1/profile/agents/{agent_id}/turn`, preserves correlation when available, and receives provider/model/node/attempts/failovers/token telemetry from `agent-roundrobin`. The infrastructure inspector is read-only and allowlisted; secrets never belong in the repository.
+
+## VM1 build: WhatsApp Native (Linux amd64)
+
+For the cm2labs VM1 deployment (`linux/amd64`, approximately 1 GB RAM and 4 GB swap), build the Native WhatsApp variant with reduced parallelism to avoid linker pressure:
+
+```bash
+GOMAXPROCS=1 GOGC=50 go build -p=1 \
+  -tags whatsapp_native \
+  -trimpath \
+  -ldflags="-s -w" \
+  -o /home/ubuntu/picoclaw-whatsapp-native-amd64 \
+  ./cmd/picoclaw
+```
+
+The resulting binary includes `whatsmeow` and is intended for Linux amd64. The tested build took approximately 5–6 minutes and produced an approximately 81 MB binary on VM1. Validate the architecture, module metadata, `whatsmeow` presence and checksum before installation. Preserve `/home/ubuntu/picoclaw/bin/picoclaw` as a rollback copy before replacing it and restarting `picoclaw.service`.
