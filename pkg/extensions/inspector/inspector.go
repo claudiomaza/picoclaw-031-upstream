@@ -39,6 +39,7 @@ func Discover(runtimeRoot string) []Target {
 		{Name: "picoclaw-a2a", Path: filepath.Join(runtimeRoot, "picoclaw-a2a-prod"), Kind: "binary"},
 		{Name: "picoclaw-edit", Path: source, Kind: "source"},
 		{Name: "picoclaw-service", Path: "/etc/systemd/system/picoclaw.service", Kind: "unit"},
+		{Name: "picoclaw-user-service", Path: "/home/ubuntu/.config/systemd/user/picoclaw.service", Kind: "unit"},
 	}
 }
 
