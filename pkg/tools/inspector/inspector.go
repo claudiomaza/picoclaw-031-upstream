@@ -11,7 +11,7 @@ import (
 type Tool struct{ runtimeRoot string }
 
 func New(runtimeRoot string) *Tool { return &Tool{runtimeRoot: runtimeRoot} }
-func (t *Tool) Name() string       { return "vm1_inspect" }
+func (t *Tool) Name() string       { return "infraestructura_inspector" }
 func (t *Tool) Description() string {
 	return "Read-only inspection of the discovered PicoClaw runtime using a fixed allowlist; never executes inspected binaries or reads secrets."
 }

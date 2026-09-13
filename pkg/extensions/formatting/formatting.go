@@ -10,6 +10,7 @@ type Profile string
 const (
 	ProfileMarkdown Profile = "markdown"
 	ProfileWhatsApp Profile = "whatsapp"
+	ProfileTelegram Profile = "telegram"
 	ProfilePlain    Profile = "plain"
 )
 
