@@ -697,3 +697,7 @@ GOMAXPROCS=1 GOGC=50 go build -p=1 \
 ```
 
 The resulting binary includes `whatsmeow` and is intended for Linux amd64. The tested build took approximately 5–6 minutes and produced an approximately 81 MB binary on VM1. Validate the architecture, module metadata, `whatsmeow` presence and checksum before installation. Preserve `/home/ubuntu/picoclaw/bin/picoclaw` as a rollback copy before replacing it and restarting `picoclaw.service`.
+
+## cm2labs runtime development
+
+Changes made through the shared `agent-harness` follow [`docs/cm2labs/DEVELOPMENT-GUIDE.md`](docs/cm2labs/DEVELOPMENT-GUIDE.md). It defines the lifecycle, task contract, upstream/local policy, A2A boundary, verification gates and evidence required for PicoClaw changes.
