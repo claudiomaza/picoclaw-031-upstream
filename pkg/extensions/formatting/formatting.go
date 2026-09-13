@@ -29,6 +29,7 @@ func Render(input string, profile Profile) string {
 }
 
 func whatsapp(input string) string {
+	input = renderTables(input, ProfileWhatsApp)
 	input = linkRE.ReplaceAllString(input, "$1 ($2)")
 	input = headingRE.ReplaceAllString(input, "*$1*")
 	input = strings.ReplaceAll(input, "**", "*")
@@ -44,6 +45,7 @@ func whatsapp(input string) string {
 }
 
 func plain(input string) string {
+	input = renderTables(input, ProfilePlain)
 	input = linkRE.ReplaceAllString(input, "$1 ($2)")
 	input = headingRE.ReplaceAllString(input, "$1")
 	input = strings.ReplaceAll(input, "**", "")

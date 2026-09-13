@@ -9,3 +9,11 @@ func TestWhatsApp(t *testing.T) {
 		t.Fatalf("got %q want %q", got, want)
 	}
 }
+
+func TestWhatsAppTable(t *testing.T) {
+	got := Render("| Nombre | Estado |\n|---|---|\n| API | activo |", ProfileWhatsApp)
+	want := "• *Nombre:* API · *Estado:* activo"
+	if got != want {
+		t.Fatalf("got %q want %q", got, want)
+	}
+}
