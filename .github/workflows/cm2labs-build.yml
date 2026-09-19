@@ -1,0 +1,30 @@
+name: cm2labs build artifact
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-linux-amd64:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Build PicoClaw runtime
+        env:
+          CGO_ENABLED: '0'
+          GOMAXPROCS: '2'
+          GOGC: '75'
+        run: |
+          mkdir -p dist
+          go build -p=2 -tags goolm -ldflags '-s -w' -trimpath -o dist/picoclaw-linux-amd64 ./cmd/picoclaw
+          sha256sum dist/picoclaw-linux-amd64 | tee dist/SHA256SUMS
+          go version -m dist/picoclaw-linux-amd64 | tee dist/BUILD-METADATA.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: picoclaw-031-edit-linux-amd64
+          path: dist/
+          retention-days: 7
