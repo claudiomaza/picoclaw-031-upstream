@@ -671,3 +671,29 @@ Discord: <https://discord.gg/V4sAZ9XWpN>
 
 WeChat:
 <img src="assets/wechat.png" alt="WeChat group QR code" width="512">
+
+
+## cm2labs extensibility layer
+
+This checkout preserves the upstream PicoClaw runtime and adds an opt-in public profile service. The runtime registry is the source of truth; profiles are not maintained in a duplicate list.
+
+Public profiles currently exposed:
+
+- `default`
+- `a2a`
+
+HTTP contract:
+
+```text
+GET  /health
+GET  /healthz
+GET  /v1/profile/agents
+GET  /v1/profile/agents/{agent_id}
+POST /v1/profile/agents/{agent_id}/turn
+```
+
+`agent_id` is fail-closed: an empty value falls back to `default`; a configured and enabled id is routed explicitly; an unknown or disabled id returns an error. Each turn carries its own run, trace, and session identifiers, so profile sessions remain isolated.
+
+The public service is an adapter around `AgentRegistry`/`ProfileService`; it does not create additional Telegram bots. Model selection remains inside the runtime and uses the configured `roundrobin` provider. Internal historical agents (`planner`, `coder`, `reviewer`, and `tester`) are not public profiles and must not be reintroduced into the active registry.
+
+Production reference: `picoclaw-a2a.service` listens on `127.0.0.1:8644`.

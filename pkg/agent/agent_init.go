@@ -5,6 +5,7 @@ package agent
 import (
 	"context"
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -392,6 +393,24 @@ func registerSharedTools(
 		// Auto-enabled when multiple agents exist. Delegation uses the SubTurn
 		// mechanism directly (not SubagentManager) and is independent of the
 		// subagent tool.
+		// cm2labs cross-runtime delegation is an explicit profile capability.
+		// It is never registered for default; configuration comes from the
+		// service environment and the harness owns routing/policy.
+		if agentID == "a2a" {
+			if binary := os.Getenv("CM2LABS_HARNESS_BINARY"); binary != "" && os.Getenv("CM2LABS_RUNTIME_PROFILE_DIR") != "" && os.Getenv("CM2LABS_DELEGATION_ROUTES") != "" {
+				agent.Tools.Register(tools.NewDelegateRuntimeTool(
+					"picoclaw", agentID, agent.Workspace,
+					tools.HarnessCLI{
+						Binary:        binary,
+						ProfileDir:    os.Getenv("CM2LABS_RUNTIME_PROFILE_DIR"),
+						Routes:        os.Getenv("CM2LABS_DELEGATION_ROUTES"),
+						PicoBaseURL:   os.Getenv("CM2LABS_PICO_BASE_URL"),
+						HermesBaseURL: os.Getenv("CM2LABS_HERMES_BASE_URL"),
+					},
+				))
+			}
+		}
+
 		if len(registry.ListAgentIDs()) > 1 {
 			delegateTool := tools.NewDelegateTool()
 			delegateTool.SetSpawner(NewSubTurnSpawner(al))
