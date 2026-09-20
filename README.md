@@ -697,3 +697,8 @@ POST /v1/profile/agents/{agent_id}/turn
 The public service is an adapter around `AgentRegistry`/`ProfileService`; it does not create additional Telegram bots. Model selection remains inside the runtime and uses the configured `roundrobin` provider. Internal historical agents (`planner`, `coder`, `reviewer`, and `tester`) are not public profiles and must not be reintroduced into the active registry.
 
 Production reference: `picoclaw-a2a.service` listens on `127.0.0.1:8644`.
+
+
+## Publicación cm2labs
+
+El branch editable se publica en `claudiomaza/picoclaw-031-upstream`, branch `cm2labs/picoclaw-031-edit-build`. No se publica sobre `main` ni sobre el upstream de Sipeed.
