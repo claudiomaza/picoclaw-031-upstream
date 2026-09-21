@@ -21,8 +21,10 @@ jobs:
         run: |
           mkdir -p dist
           go build -p=2 -tags goolm -ldflags '-s -w' -trimpath -o dist/picoclaw-linux-amd64 ./cmd/picoclaw
-          sha256sum dist/picoclaw-linux-amd64 | tee dist/SHA256SUMS
+          go build -p=2 -tags goolm -ldflags '-s -w' -trimpath -o dist/picoclaw-a2a-linux-amd64 ./cmd/picoclaw-a2a
+          sha256sum dist/picoclaw-linux-amd64 dist/picoclaw-a2a-linux-amd64 | tee dist/SHA256SUMS
           go version -m dist/picoclaw-linux-amd64 | tee dist/BUILD-METADATA.txt
+          go version -m dist/picoclaw-a2a-linux-amd64 | tee -a dist/BUILD-METADATA.txt
       - uses: actions/upload-artifact@v4
         with:
           name: picoclaw-031-edit-linux-amd64

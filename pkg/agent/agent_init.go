@@ -15,6 +15,7 @@ import (
 	"github.com/sipeed/picoclaw/pkg/commands"
 	"github.com/sipeed/picoclaw/pkg/config"
 	runtimeevents "github.com/sipeed/picoclaw/pkg/events"
+	harness "github.com/sipeed/picoclaw/pkg/extensibility/harness"
 	"github.com/sipeed/picoclaw/pkg/logger"
 	"github.com/sipeed/picoclaw/pkg/providers"
 	"github.com/sipeed/picoclaw/pkg/skills"
@@ -385,6 +386,14 @@ func registerSharedTools(
 			}
 		} else if (spawnEnabled || spawnStatusEnabled) && !cfg.Tools.IsToolEnabled("subagent") {
 			logger.WarnCF("agent", "spawn/spawn_status tools require subagent to be enabled", nil)
+		}
+
+		// cm2labs cross-runtime delegation is enabled only for the a2a profile
+		// when the fixed harness configuration is complete.
+		if agentID == "a2a" {
+			if cli, ok := harness.FromEnv(); ok {
+				agent.Tools.Register(tools.NewDelegateRuntimeTool("picoclaw", agentID, agent.Workspace, cli))
+			}
 		}
 
 		// Register delegate tool for multi-agent setups.
