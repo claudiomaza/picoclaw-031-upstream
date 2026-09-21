@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/sipeed/picoclaw/cmd/picoclaw/internal"
+	a2acmd "github.com/sipeed/picoclaw/cmd/picoclaw/internal/a2a"
 	"github.com/sipeed/picoclaw/cmd/picoclaw/internal/agent"
 	"github.com/sipeed/picoclaw/cmd/picoclaw/internal/auth"
 	"github.com/sipeed/picoclaw/cmd/picoclaw/internal/cliui"
@@ -131,6 +132,7 @@ picoclaw --no-color status`,
 		configcmd.NewConfigCommand(),
 		onboard.NewOnboardCommand(),
 		agent.NewAgentCommand(),
+		a2acmd.NewA2ACommand(),
 		auth.NewAuthCommand(),
 		gateway.NewGatewayCommand(),
 		status.NewStatusCommand(),
