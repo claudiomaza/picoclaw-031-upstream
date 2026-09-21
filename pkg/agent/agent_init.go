@@ -5,7 +5,6 @@ package agent
 import (
 	"context"
 	"fmt"
-	"os"
 	"sync"
 	"time"
 
