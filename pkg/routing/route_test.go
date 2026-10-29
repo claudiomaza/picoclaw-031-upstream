@@ -231,3 +231,19 @@ func TestResolveRoute_NoDefaultUsesFirst(t *testing.T) {
 		t.Errorf("AgentID = %q, want 'alpha' (first in list)", route.AgentID)
 	}
 }
+func TestResolveRoute_ExplicitAgentIDFromProfileRequest(t *testing.T) {
+	cfg := testConfig([]config.AgentConfig{
+		{ID: "default", Default: true},
+		{ID: "a2a"},
+	})
+	route := NewRouteResolver(cfg).ResolveRoute(bus.InboundContext{
+		Channel: "a2a",
+		Raw:     map[string]string{"agent_id": "a2a"},
+	})
+	if route.AgentID != "a2a" {
+		t.Fatalf("AgentID = %q, want a2a", route.AgentID)
+	}
+	if route.MatchedBy != "explicit-agent-id" {
+		t.Fatalf("MatchedBy = %q, want explicit-agent-id", route.MatchedBy)
+	}
+}
